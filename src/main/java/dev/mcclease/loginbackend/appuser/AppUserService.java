@@ -1,11 +1,16 @@
 package dev.mcclease.loginbackend.appuser;
 
+import dev.mcclease.loginbackend.registration.token.ConfirmationToken;
+import dev.mcclease.loginbackend.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -14,6 +19,7 @@ public class AppUserService implements UserDetailsService {
     private final static String USER_NOT_FOUND_MESSAGE = "User not found with email %s not found";
     private final AppUserRepository appUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ConfirmationTokenService confirmationTokenService;
 
     @Override
     public UserDetails loadUserByUsername(String email)
@@ -22,6 +28,7 @@ public class AppUserService implements UserDetailsService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, email)));
     }
+
     public String signUpUser(AppUser appUser){
         boolean userExists = appUserRepository.findByEmail(appUser.getEmail())
                 .isPresent();
@@ -34,7 +41,13 @@ public class AppUserService implements UserDetailsService {
 
         appUserRepository.save(appUser);
 
-        //Todo: send confirmation token
-        return "successfull!"; //temp to get it working.
+        String token = UUID.randomUUID().toString();
+
+        confirmationTokenService.saveConfirmationToken(new ConfirmationToken(token, LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15), appUser));
+
+        //Todo: send email
+
+        return token;
     }
 }

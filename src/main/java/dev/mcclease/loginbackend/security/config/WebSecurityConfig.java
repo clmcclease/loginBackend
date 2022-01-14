@@ -21,7 +21,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //Temporary to make it work for troubleshooting
+        //TODO: Temporary to make it work for troubleshooting, csrf().disable() needs to be changed
         http
                 .csrf().disable()
                 .authorizeRequests()
