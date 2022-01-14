@@ -10,6 +10,4 @@ public class EmailValidator implements Predicate<String> {
         //TODO: make a regex to validate.
         return true;
     }
-
-
 }

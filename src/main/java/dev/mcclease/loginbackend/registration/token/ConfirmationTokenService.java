@@ -3,12 +3,24 @@ package dev.mcclease.loginbackend.registration.token;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class ConfirmationTokenService {
-    private final ConfirmationTokenRepository ConfirmationTokenRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
 
     public void saveConfirmationToken(ConfirmationToken confirmationToken){
-        ConfirmationTokenRepository.save(confirmationToken);
+        confirmationTokenRepository.save(confirmationToken);
+    }
+
+    public Optional<ConfirmationToken> getToken(String token){
+        return confirmationTokenRepository.findByToken(token);
+    }
+
+    public int setConfirmedAt(String token){
+        return confirmationTokenRepository.updateConfirmedAt(token, LocalDateTime.now());
     }
 }

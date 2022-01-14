@@ -22,8 +22,7 @@ public class AppUserService implements UserDetailsService {
     private final ConfirmationTokenService confirmationTokenService;
 
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return appUserRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(String.format(USER_NOT_FOUND_MESSAGE, email)));
@@ -34,20 +33,21 @@ public class AppUserService implements UserDetailsService {
                 .isPresent();
         if(userExists){
             throw new IllegalStateException("email already taken");
+            //There are better ways to do this
         }
+
         String encodedPassword = bCryptPasswordEncoder.encode(appUser.getPassword());
-
         appUser.setPassword(encodedPassword);
-
         appUserRepository.save(appUser);
-
         String token = UUID.randomUUID().toString();
 
-        confirmationTokenService.saveConfirmationToken(new ConfirmationToken(token, LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15), appUser));
+        ConfirmationToken confirmationToken = new ConfirmationToken (token, LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15), appUser);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
 
         //Todo: send email
-
         return token;
     }
+
+    public int enableAppUser(String email){ return appUserRepository.enableAppUser(email); }
 }
